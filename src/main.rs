@@ -24,8 +24,6 @@ lazy_static! {
 async fn main() {
     // Load the .env file into the environment.
     dotenv().ok();
-    // We cannot create a shared Airtable instance because
-    // it contains an http client that is not Sync.
 
     let app = Router::new().route("/table/:id", get(get_table_handler));
 

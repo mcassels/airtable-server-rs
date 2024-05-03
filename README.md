@@ -1,2 +1,5 @@
 # airtable-server-rs
-Server that is a thin wrapper over the airtable API to get around airtable rate limits via caching
+
+This server is a thin wrapper around the airtable api, in order to cache airtable responses so we can get around airtable's rate limit.
+
+TODO: create api docs
