@@ -12,15 +12,18 @@ use crate::{TableResult, TABLE_CACHE};
 #[derive(Deserialize)]
 #[allow(non_snake_case)] // the query params for airtable are camelCase
 pub(crate) struct TableGetParams {
-  filterByFormula: Option<String>,
+    filterByFormula: Option<String>,
 }
 
 pub(crate) async fn get_table_handler(
     Path(table): Path<String>,
     Query(query): Query<TableGetParams>,
 ) -> Result<TableResult, StatusCode> {
-
-    let cache_key = format!("{}/{}", table, query.filterByFormula.as_deref().unwrap_or(""));
+    let cache_key = format!(
+        "{}/{}",
+        table,
+        query.filterByFormula.as_deref().unwrap_or("")
+    );
 
     // Check if the cache has the value and if it is less than 60 seconds old.
     if let Some(entry) = TABLE_CACHE.get(&cache_key) {
