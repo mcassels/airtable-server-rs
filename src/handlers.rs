@@ -28,7 +28,7 @@ pub(crate) async fn get_table_handler(
     // Check if the cache has the value and if it is less than 60 seconds old.
     if let Some(entry) = TABLE_CACHE.get(&cache_key) {
         if entry.timestamp.elapsed().as_secs() < 60 {
-            println!("Cache hit for {}", cache_key);
+            info!("Cache hit for {}", cache_key);
             return Ok(entry.value.clone());
         }
     }
@@ -36,7 +36,9 @@ pub(crate) async fn get_table_handler(
     // We cannot create a shared Airtable instance because
     // it contains an http client that is not Sync.
     let airtable = Airtable::new_from_env();
-    println!("Cache miss for {}. Making airtable request...", cache_key);
+
+    info!("Cache miss for {}. Making airtable request...", cache_key);
+
     let records: Vec<Record<serde_json::Value>> = airtable
         .list_records::<serde_json::Value>(&table, None, None, query.filterByFormula.as_deref())
         .await
