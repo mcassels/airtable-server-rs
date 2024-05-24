@@ -3,13 +3,13 @@ use axum::{http::Method, routing::get, Json, Router};
 use dotenv::dotenv;
 use lazy_static::lazy_static;
 use mini_moka::sync::Cache;
-use simplelog::{Config, LevelFilter, SimpleLogger};
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 
 mod handlers;
 use handlers::get_table_handler;
 
+extern crate pretty_env_logger;
 #[macro_use]
 extern crate log;
 
@@ -29,7 +29,7 @@ lazy_static! {
 async fn main() {
     // Load the .env file into the environment.
     dotenv().ok();
-    SimpleLogger::init(LevelFilter::Info, Config::default()).expect("could not initialize logger");
+    pretty_env_logger::init();
 
     let cors = CorsLayer::new()
         .allow_methods([Method::GET])

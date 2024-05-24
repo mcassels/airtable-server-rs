@@ -50,5 +50,6 @@ pub(crate) async fn get_table_handler(
         timestamp: Instant::now(),
     };
     TABLE_CACHE.insert(cache_key, entry);
+
     Ok(res)
 }
