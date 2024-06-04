@@ -5,7 +5,6 @@ use axum::{
     Json,
 };
 use serde::Deserialize;
-use std::time::Instant;
 
 use crate::{TableResult, TABLE_CACHE};
 
@@ -25,12 +24,11 @@ pub(crate) async fn get_table_handler(
         query.filterByFormula.as_deref().unwrap_or("")
     );
 
-    // Check if the cache has the value and if it is less than 60 seconds old.
+    // TODO: Expose an endpoint to invalidate the cache.
+    // (Or re-introduce a TTL for the cache.)
     if let Some(entry) = TABLE_CACHE.get(&cache_key) {
-        if entry.timestamp.elapsed().as_secs() < 60 {
-            info!("Cache hit for {}", cache_key);
-            return Ok(entry.value.clone());
-        }
+        info!("Cache hit for {}", cache_key);
+        return Ok(entry.value);
     }
 
     // We cannot create a shared Airtable instance because
@@ -45,10 +43,7 @@ pub(crate) async fn get_table_handler(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let res = Json::from(records);
-    let entry = crate::TableCacheEntry {
-        value: res.clone(),
-        timestamp: Instant::now(),
-    };
+    let entry = crate::TableCacheEntry { value: res.clone() };
     TABLE_CACHE.insert(cache_key, entry);
 
     Ok(res)

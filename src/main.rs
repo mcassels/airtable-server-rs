@@ -18,7 +18,6 @@ pub(crate) type TableResult = Json<Vec<Record<serde_json::Value>>>;
 #[derive(Clone)]
 pub(crate) struct TableCacheEntry {
     pub(crate) value: TableResult,
-    pub(crate) timestamp: std::time::Instant,
 }
 
 lazy_static! {
