@@ -1,4 +1,4 @@
-use airtable_api::{Airtable, Record};
+use airtable_api::{api_key_from_env, Airtable, Record};
 use axum::{
     extract::{Path, Query},
     http::StatusCode,
@@ -14,12 +14,19 @@ pub(crate) struct TableGetParams {
     filterByFormula: Option<String>,
 }
 
+pub(crate) async fn clear_cache_handler() -> StatusCode {
+    TABLE_CACHE.invalidate_all();
+    info!("Cache cleared");
+    StatusCode::OK
+}
+
 pub(crate) async fn get_table_handler(
-    Path(table): Path<String>,
+    Path((base, table)): Path<(String, String)>,
     Query(query): Query<TableGetParams>,
 ) -> Result<TableResult, StatusCode> {
     let cache_key = format!(
-        "{}/{}",
+        "{}/{}/{}",
+        base,
         table,
         query.filterByFormula.as_deref().unwrap_or("")
     );
@@ -33,7 +40,7 @@ pub(crate) async fn get_table_handler(
 
     // We cannot create a shared Airtable instance because
     // it contains an http client that is not Sync.
-    let airtable = Airtable::new_from_env();
+    let airtable = Airtable::new(api_key_from_env(), base, "");
 
     info!("Cache miss for {}. Making airtable request...", cache_key);
 

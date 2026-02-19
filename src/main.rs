@@ -7,7 +7,7 @@ use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 
 mod handlers;
-use handlers::get_table_handler;
+use handlers::{clear_cache_handler, get_table_handler};
 
 extern crate pretty_env_logger;
 #[macro_use]
@@ -31,12 +31,13 @@ async fn main() {
     pretty_env_logger::init();
 
     let cors = CorsLayer::new()
-        .allow_methods([Method::GET])
+        .allow_methods([Method::GET, Method::POST])
         // allow requests from any origin
         .allow_origin(Any);
 
     let app = Router::new()
-        .route("/table/:id", get(get_table_handler))
+        .route("/table/:base/:id", get(get_table_handler))
+        .route("/cache/clear", axum::routing::post(clear_cache_handler))
         .layer(cors);
 
     // fly.io uses port 8080 by default
